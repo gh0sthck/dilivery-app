@@ -12,6 +12,7 @@ class DatabaseSettings(BaseSettings):
 
 class AppSettings(BaseSettings):
     """Main project settings."""
+    debug: bool = True
     name: str = "Dilivery app"
     version: str = "0.1.0" 
     database: DatabaseSettings = DatabaseSettings()
