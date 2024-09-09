@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings
 
 class DatabaseSettings(BaseSettings):
     "Database connection settings." 
-    ...
+    dsn: str = "sqlite+aiosqlite:///database.db"
 
 
 class AppSettings(BaseSettings):
