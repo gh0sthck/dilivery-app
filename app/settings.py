@@ -14,7 +14,8 @@ class AppSettings(BaseSettings):
     """Main project settings."""
     debug: bool = True
     name: str = "Dilivery app"
-    version: str = "0.1.0" 
+    version: str = "0.1.0"
+    docs_url: str = "/docs/" 
     database: DatabaseSettings = DatabaseSettings()
 
 
