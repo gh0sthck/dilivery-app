@@ -11,4 +11,4 @@ class FoodSchema(BaseModel):
     name: str = Field(max_length=80)
     description: str
     price: int
-    shop: ShopSchema
+    shop: int

@@ -7,8 +7,9 @@ from app.database import Model
 
 class Shop(Model):
     __tablename__ = "shop"
+
     name: Mapped[str] = mapped_column(String(length=80))
-    foods: Mapped[List["Food"]] = relationship(back_populates="shops")
+    food: Mapped[List["Food"]] = relationship(back_populates="shops")
 
 
 class Food(Model):
