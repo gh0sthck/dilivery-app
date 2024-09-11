@@ -2,7 +2,7 @@ from typing import List
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import Model
+from app.database import Model
 
 
 class Shop(Model):
@@ -13,9 +13,9 @@ class Shop(Model):
 
 class Food(Model):
     __tablename__ = "food"
-    
+
     name: Mapped[str] = mapped_column(String(length=80))
     description: Mapped[str]
     price: Mapped[int]
     shop: Mapped["Shop"] = mapped_column(ForeignKey("shop.id"))
-    shops: Mapped[List["Shop"]] = relationship(back_populates="food") 
+    shops: Mapped[List["Shop"]] = relationship(back_populates="food")
