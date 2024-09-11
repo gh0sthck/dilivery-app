@@ -1,6 +1,5 @@
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
-from sqlalchemy import Select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from fastapi import APIRouter, Depends
 
@@ -26,3 +25,17 @@ async def food_by_id(
 ) -> Optional[FoodSchema]:
     return await food_explorer.get(session=session, id=id)
 
+
+@food_router.post("/add/")
+async def food_add(
+    schema: Annotated[FoodSchema, Depends()],
+    session: AsyncSession = Depends(get_async_session),
+) -> FoodSchema:
+    return await food_explorer.post(session=session, schema=schema)
+
+
+@food_router.delete("/{id}/")
+async def food_delete(
+    id: int, session: AsyncSession = Depends(get_async_session)
+) -> Optional[FoodSchema]:
+    return await food_explorer.delete(session=session, id=id)
