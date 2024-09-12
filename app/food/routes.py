@@ -44,6 +44,15 @@ async def food_delete(
     return await food_explorer.delete(session=session, id=id)
 
 
+@food_router.put("/update/{id}")
+async def food(
+    id: int,
+    schema: Annotated[FoodSchema, Depends()],
+    session: AsyncSession = Depends(get_async_session),
+) -> Optional[FoodSchema]:
+    return await food_explorer.update(session=session, id=id, schema=schema)
+
+
 @shop_router.get("/all/")
 async def shop_all(
     session: AsyncSession = Depends(get_async_session),
@@ -71,3 +80,12 @@ async def shop_delete(
     id: int, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[ShopSchema]:
     return await shop_explorer.delete(id=id, session=session)
+
+
+@shop_router.put("/update/{id}")
+async def shop_update(
+    id: int,
+    schema: Annotated[ShopSchema, Depends()],
+    session: AsyncSession = Depends(get_async_session),
+) -> Optional[ShopSchema]:
+    return await shop_explorer.update(session=session, id=id, schema=schema)
