@@ -1,7 +1,8 @@
 from typing import List
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.city.models import City
 from app.database import Model
 
 
@@ -9,6 +10,9 @@ class Shop(Model):
     __tablename__ = "shop"
 
     name: Mapped[str] = mapped_column(String(length=80))
+    rate: Mapped[float] = mapped_column(Float(precision=2), default=0.0) 
+    city: Mapped["City"] = mapped_column(ForeignKey("city.id"))
+    cities: Mapped[List["City"]] = relationship(back_populates="shops")
     food: Mapped[List["Food"]] = relationship(back_populates="shops")
 
 
@@ -16,7 +20,8 @@ class Food(Model):
     __tablename__ = "food"
 
     name: Mapped[str] = mapped_column(String(length=80))
-    description: Mapped[str]
+    rate: Mapped[float] = mapped_column(Float(precision=2), default=0.0)
+    description: Mapped[str | None] = mapped_column(default=None)
     price: Mapped[int]
     shop: Mapped["Shop"] = mapped_column(ForeignKey("shop.id"))
     shops: Mapped[List["Shop"]] = relationship(back_populates="food")
