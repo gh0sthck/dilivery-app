@@ -1,3 +1,3 @@
-from .routes import food_router
+from .routes import food_router, shop_router
 
-__all__ = ["food_router"]
+__all__ = ["food_router", "shop_router"]
