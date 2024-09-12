@@ -45,7 +45,7 @@ async def food_delete(
 
 
 @food_router.put("/update/{id}")
-async def food(
+async def food_update(
     id: int,
     schema: Annotated[FoodSchema, Depends()],
     session: AsyncSession = Depends(get_async_session),

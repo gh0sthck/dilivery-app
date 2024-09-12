@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.settings import config
 from app.food import food_router, shop_router
+from app.city import city_router
 
 app = FastAPI(
     debug=config.debug,
@@ -13,3 +14,4 @@ app = FastAPI(
 
 app.include_router(food_router)
 app.include_router(shop_router)
+app.include_router(city_router)
