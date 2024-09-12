@@ -7,7 +7,7 @@ You should have model (app.database) and model schema (pydantic.BaseModel) objec
 from typing import List, Optional
 
 from pydantic import BaseModel
-from sqlalchemy import Delete, Insert, Select
+from sqlalchemy import Delete, Insert, Select, Update
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from app.database import Model
@@ -53,17 +53,28 @@ class DbExplorer:
 
     async def delete(self, session: AsyncSession, id: int) -> Optional[BaseModel]:
         """Return object schema, which be delete from database."""
-        food: Optional[self.model] = await self.get(session=session, id=id)
-        if food:
+        obj: Optional[self.model] = await self.get(session=session, id=id)
+        if obj:
             async with session as sess:
                 query = Delete(self.model).where(self.model.id == id)
                 await sess.execute(query)
                 await sess.commit()
-            return self.schema.model_validate(food.__dict__)
+            return self.schema.model_validate(obj.__dict__)
         return None
 
     async def update(
-        self, session: AsyncSession, id: int, new_schema: BaseModel
-    ) -> BaseModel:
+        self, session: AsyncSession, id: int, schema: BaseModel
+    ) -> Optional[BaseModel]:
         """Return updated object schema, with be edited in database."""
-        pass
+        obj: Optional[self.model] = await self.get(session=session, id=id)
+        if obj:
+            async with session as sess:
+                query = (
+                    Update(self.model)
+                    .where(self.model.id == id)
+                    .values(schema.model_dump())
+                )
+                await sess.execute(query)
+                await sess.commit()
+            return schema
+        return None

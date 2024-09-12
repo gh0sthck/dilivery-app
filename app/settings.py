@@ -3,12 +3,35 @@ App settings file. Don't touch anything.
 Import `config` from settings and nothing more.
 """
 
-from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+from pydantic import PostgresDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+load_dotenv()
+
+
+class PostgresData(BaseSettings):
+    NAME: str
+    USER: str
+    PASSWD: str
+    HOST: str
+    PORT: str
+
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 class DatabaseSettings(BaseSettings):
     "Database connection settings."
-    dsn: str = "sqlite+aiosqlite:///database.db"
+    
+    pg_data: PostgresData = PostgresData()
+    postgres: PostgresDsn = (
+        f"postgresql+asyncpg://{pg_data.USER}:{pg_data.PASSWD}"
+        f"@{pg_data.HOST}:{pg_data.PORT}/{pg_data.NAME}"
+    )
+
+    @property
+    def dsn(self) -> str:
+        return self.postgres.unicode_string()
 
 
 class AppSettings(BaseSettings):
