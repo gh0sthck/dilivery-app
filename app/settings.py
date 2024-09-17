@@ -3,14 +3,18 @@ App settings file. Don't touch anything.
 Import `config` from settings and nothing more.
 """
 
+from pathlib import Path
 from dotenv import load_dotenv
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 load_dotenv()
 
+BASE_DIR = Path(__file__).parent
+
 
 class PostgresData(BaseSettings):
+    """PostgreSQL data to connection. Recevies date from env file."""
     NAME: str
     USER: str
     PASSWD: str
@@ -34,6 +38,15 @@ class DatabaseSettings(BaseSettings):
         return self.postgres.unicode_string()
 
 
+class JWTAuth(BaseSettings):
+    """JWT authentication settings."""
+    
+    private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
+    public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem" 
+    algorithm: str = "RS256"
+    access_token_expire_minutes: int = 4
+    
+
 class AppSettings(BaseSettings):
     """Main project settings."""
 
@@ -41,7 +54,8 @@ class AppSettings(BaseSettings):
     name: str = "Dilivery app"
     version: str = "0.1.0"
     docs_url: str = "/docs/"
+    
     database: DatabaseSettings = DatabaseSettings()
-
+    auth: JWTAuth = JWTAuth() 
 
 config: AppSettings = AppSettings()

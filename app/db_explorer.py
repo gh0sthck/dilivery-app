@@ -39,9 +39,15 @@ class DbExplorer:
                 else Select(self.model)
             )
             pre_result = await session.execute(query)
-            if id:
-                return pre_result.scalar_one_or_none()
-            return pre_result.scalars().all()
+            if id is not None:
+                result = pre_result.scalar_one_or_none()
+                if result:
+                    return self.schema.model_validate(obj=result.__dict__)
+                return None
+            return [
+                self.schema.model_validate(obj=res.__dict__)
+                for res in pre_result.scalars().all()
+            ] if pre_result else None
 
     async def post(self, session: AsyncSession, schema: BaseModel) -> BaseModel:
         """Return object schema, which be added to database."""

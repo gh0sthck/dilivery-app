@@ -1,5 +1,4 @@
 from typing import Annotated, List, Optional
-from click import Option
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
