@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy import Delete, Insert, Select, Update
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from .database import async_session
 from app.database import Model
 
 
@@ -27,54 +28,66 @@ class DbExplorer:
         self.schema: BaseModel = schema
 
     async def get(
-        self, session: AsyncSession, id: Optional[int] = None
+        self, id: Optional[int] = None
     ) -> Optional[List[BaseModel] | BaseModel]:
         """
         Return all objects schemas from database; one if id is specified; None if object not found.
         """
-        async with session as sess:
+        session: AsyncSession
+        async with async_session() as session:
             query = (
                 Select(self.model).where(self.model.id == id)
                 if id
                 else Select(self.model)
             )
             pre_result = await session.execute(query)
-            if id:
-                return pre_result.scalar_one_or_none()
-            return pre_result.scalars().all()
+            if id is not None:
+                result = pre_result.scalar_one_or_none()
+                if result:
+                    return self.schema.model_validate(obj=result.__dict__)
+                return None
+            return (
+                [
+                    self.schema.model_validate(obj=res.__dict__)
+                    for res in pre_result.scalars().all()
+                ]
+                if pre_result
+                else None
+            )
 
-    async def post(self, session: AsyncSession, schema: BaseModel) -> BaseModel:
+    async def post(self, schema: BaseModel) -> BaseModel:
         """Return object schema, which be added to database."""
-        async with session as sess:
+        session: AsyncSession
+        async with async_session() as session:
             query = Insert(self.model).values(schema.model_dump())
-            await sess.execute(query)
-            await sess.commit()
+            await session.execute(query)
+            await session.commit()
         return schema
 
-    async def delete(self, session: AsyncSession, id: int) -> Optional[BaseModel]:
+    async def delete(self, id: int) -> Optional[BaseModel]:
         """Return object schema, which be delete from database."""
-        obj: Optional[self.model] = await self.get(session=session, id=id)
-        if obj:
-            async with session as sess:
+        session: AsyncSession
+        async with async_session() as session:
+            obj: Optional[self.model] = await self.get(session=session, id=id)
+            if obj:
                 query = Delete(self.model).where(self.model.id == id)
-                await sess.execute(query)
-                await sess.commit()
-            return self.schema.model_validate(obj.__dict__)
-        return None
+                await session.execute(query)
+                await session.commit()
+                return self.schema.model_validate(obj.__dict__)
+            return None
 
-    async def update(
-        self, session: AsyncSession, id: int, schema: BaseModel
-    ) -> Optional[BaseModel]:
+    async def update(self, id: int, schema: BaseModel) -> Optional[BaseModel]:
         """Return updated object schema, with be edited in database."""
-        obj: Optional[self.model] = await self.get(session=session, id=id)
-        if obj:
-            async with session as sess:
+        session: AsyncSession
+        async with async_session() as session:
+            obj: Optional[self.model] = await self.get(session=session, id=id)
+            if obj:
                 query = (
                     Update(self.model)
                     .where(self.model.id == id)
                     .values(schema.model_dump())
                 )
-                await sess.execute(query)
-                await sess.commit()
-            return schema
+                await session.execute(query)
+                await session.commit()
+                return schema
         return None

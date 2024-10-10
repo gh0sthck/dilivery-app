@@ -8,6 +8,7 @@ from app.database import Model
 
 if typing.TYPE_CHECKING:
     from app.food.models import Shop
+    from app.auth.models import User
 
 
 class City(Model):
