@@ -16,4 +16,3 @@ class User(Model):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     balance: Mapped[float] = mapped_column(default=0.0)
     city: Mapped["City"] = mapped_column(ForeignKey("city.id"))
-    cities: Mapped[List["City"]] = relationship(back_populates="users")

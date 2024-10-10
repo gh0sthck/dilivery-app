@@ -16,76 +16,60 @@ shop_explorer = DbExplorer(model=Shop, schema=ShopSchema)
 
 
 @food_router.get("/all/")
-async def food_all(
-    session: AsyncSession = Depends(get_async_session),
-) -> Optional[List[FoodSchema]]:
-    return await food_explorer.get(session=session)
+async def food_all() -> Optional[List[FoodSchema]]:
+    return await food_explorer.get()
 
 
 @food_router.get("/{id}/")
-async def food_by_id(
-    id: int, session: AsyncSession = Depends(get_async_session)
-) -> Optional[FoodSchema]:
-    return await food_explorer.get(session=session, id=id)
+async def food_by_id(id: int) -> Optional[FoodSchema]:
+    return await food_explorer.get(id=id)
 
 
 @food_router.post("/add/")
 async def food_add(
     schema: Annotated[FoodSchema, Depends()],
-    session: AsyncSession = Depends(get_async_session),
 ) -> FoodSchema:
-    return await food_explorer.post(session=session, schema=schema)
+    return await food_explorer.post(schema=schema)
 
 
 @food_router.delete("/delete/{id}/")
-async def food_delete(
-    id: int, session: AsyncSession = Depends(get_async_session)
-) -> Optional[FoodSchema]:
-    return await food_explorer.delete(session=session, id=id)
+async def food_delete(id: int) -> Optional[FoodSchema]:
+    return await food_explorer.delete(id=id)
 
 
 @food_router.put("/update/{id}")
 async def food_update(
     id: int,
     schema: Annotated[FoodSchema, Depends()],
-    session: AsyncSession = Depends(get_async_session),
 ) -> Optional[FoodSchema]:
-    return await food_explorer.update(session=session, id=id, schema=schema)
+    return await food_explorer.update(id=id, schema=schema)
 
 
 @shop_router.get("/all/")
-async def shop_all(
-    session: AsyncSession = Depends(get_async_session),
-) -> Optional[List[ShopSchema]]:
-    return await shop_explorer.get(session=session)
+async def shop_all() -> Optional[List[ShopSchema]]:
+    return await shop_explorer.get()
 
 
 @shop_router.get("/{id}/")
-async def shop_by_id(
-    id: int, session: AsyncSession = Depends(get_async_session)
-) -> Optional[ShopSchema]:
-    return await shop_explorer.get(session=session, id=id)
+async def shop_by_id(id: int) -> Optional[ShopSchema]:
+    return await shop_explorer.get(id=id)
 
 
 @shop_router.post("/new/")
 async def shop_add(
     schema: Annotated[ShopSchema, Depends()],
-    session: AsyncSession = Depends(get_async_session),
 ) -> ShopSchema:
-    return await shop_explorer.post(session=session, schema=schema)
+    return await shop_explorer.post(schema=schema)
 
 
 @shop_router.delete("/delete/{id}")
-async def shop_delete(
-    id: int, session: AsyncSession = Depends(get_async_session)
-) -> Optional[ShopSchema]:
-    return await shop_explorer.delete(id=id, session=session)
+async def shop_delete(id: int) -> Optional[ShopSchema]:
+    return await shop_explorer.delete(id=id)
 
 
 @shop_router.put("/update/{id}")
 async def shop_update(
     id: int,
     schema: Annotated[ShopSchema, Depends()],
-    session: AsyncSession = Depends(get_async_session),
 ) -> Optional[ShopSchema]:
-    return await shop_explorer.update(session=session, id=id, schema=schema)
+    return await shop_explorer.update(id=id, schema=schema)

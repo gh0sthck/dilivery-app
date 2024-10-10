@@ -17,7 +17,7 @@ class RegisterUser(UserSchema):
 
 
 class JWTPayload(BaseModel):
-    sub: int
+    sub: str
     username: str
     email: EmailStr
     expire: int = (datetime.now() + timedelta(minutes=config.auth.access_token_expire_minutes)).minute

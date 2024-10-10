@@ -30,5 +30,5 @@ def hash_password(password: str):
     return bcrypt.hashpw(password=password.encode(), salt=salt)
 
 
-def validate_password(password: bytes, hash: bytes):
-    return bcrypt.checkpw(password=password, hashed_password=hash)
+def validate_password(password: str, hash: bytes):
+    return bcrypt.checkpw(password=password.encode(), hashed_password=hash)
