@@ -8,8 +8,8 @@ from app.db_explorer import DbExplorer
 from app.food.models import Food, Shop
 from app.food.schemas import FoodSchema, ShopSchema
 
-food_router = APIRouter(prefix="/food", tags=["Food"])
-shop_router = APIRouter(prefix="/shop", tags=["Shop"])
+food_router = APIRouter(prefix="/api/food", tags=["Food"])
+shop_router = APIRouter(prefix="/api/shop", tags=["Shop"])
 
 food_explorer = DbExplorer(model=Food, schema=FoodSchema)
 shop_explorer = DbExplorer(model=Shop, schema=ShopSchema)

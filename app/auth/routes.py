@@ -6,7 +6,7 @@ from app.auth.user_explorer import UserExplorer
 from app.auth.utils import decode_jwt, hash_password, validate_password, encode_jwt
 
 
-users_router = APIRouter(prefix="/auth", tags=["Auth"])
+users_router = APIRouter(prefix="/api/auth", tags=["Auth"])
 users_explorer = UserExplorer()
 http_bearer = HTTPBearer()
 
@@ -54,3 +54,8 @@ async def user_current_user(
     schema: UserSchema = Depends(get_current_user),
 ) -> UserSchema:
     return schema
+
+
+@users_router.get("/{id}/")
+async def user_by_id(id: int) -> UserSchema:
+    return await users_explorer.get(id=id)

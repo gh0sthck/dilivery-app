@@ -1,14 +1,12 @@
 from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from app.city.models import City
 from app.city.schema import CitySchema
-from app.database import get_async_session
 from app.db_explorer import DbExplorer
 
 
-city_router = APIRouter(prefix="/city", tags=["City"])
+city_router = APIRouter(prefix="/api/city", tags=["City"])
 city_explorer = DbExplorer(model=City, schema=CitySchema)
 
 
