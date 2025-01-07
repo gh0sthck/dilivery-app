@@ -1,4 +1,10 @@
+from typing import Optional
 from pydantic import BaseModel, Field
+
+
+class CategorySchema(BaseModel):
+    id: int
+    name: str
 
 
 class ShopSchema(BaseModel):
@@ -15,3 +21,4 @@ class FoodSchema(BaseModel):
     description: str
     price: int
     shop: int
+    category: Optional[int]

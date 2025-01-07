@@ -3,6 +3,7 @@ from sqlalchemy import Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.city.models import City
+from app.orders.models import Order
 from app.database import Model
 
 
@@ -34,3 +35,4 @@ class Food(Model):
     category: Mapped["Category"] = mapped_column(ForeignKey("category.id"), nullable=True)
     shops: Mapped[List["Shop"]] = relationship(back_populates="food")
     categories: Mapped[List["Category"]] = relationship(back_populates="food")
+    order: Mapped[List["Order"]] = relationship("Order", secondary=Order, backref="order")
