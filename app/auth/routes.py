@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, Form, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response
 
 from app.auth.schemas import JWTPayload, JWTToken, RegisterUser, UserSchema
 from app.auth.user_explorer import UserExplorer
@@ -8,38 +7,53 @@ from app.auth.utils import decode_jwt, hash_password, validate_password, encode_
 
 users_router = APIRouter(prefix="/api/auth", tags=["Auth"])
 users_explorer = UserExplorer()
-http_bearer = HTTPBearer()
 
 
 async def validate_auth_user(username: str = Form(), password: str = Form()):
-    unauth_exception = HTTPException(
-        status_code=401, detail="Invalid username or password"
-    )
     user = await users_explorer.get_by_username(username=username)
     if not user:
-        raise unauth_exception
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     if validate_password(password=password, hash=user.password):
         return user
-    raise unauth_exception
+    raise HTTPException(status_code=401, detail="Invalid username or password")
+
+
+async def get_token(request: Request) -> dict:
+    token = request.cookies.get("access_token")
+    print("TOKEN", token)
+    if token:
+        return decode_jwt(jwt_token=token)
+    raise HTTPException(status_code=401, detail="Unauthenticated.")
 
 
 async def get_current_user(
-    creds: HTTPAuthorizationCredentials = Depends(http_bearer),
-) -> UserSchema:
-    token: dict = decode_jwt(jwt_token=creds.credentials.encode())
-    current_user = await users_explorer.get_by_username(username=token.get("username"))
-    return current_user
+    token: dict = Depends(get_token)
+):
+    user = await users_explorer.get_by_username(username=token.get("username"))
+    return user
 
 
 @users_router.post("/login/")
-async def user_login(schema: UserSchema = Depends(validate_auth_user)) -> JWTToken:
+async def user_login(response: Response, schema: UserSchema = Depends(validate_auth_user)) -> JWTToken:
     schema.password = hash_password(schema.password.decode()).decode()
     payload = JWTPayload(
         sub=schema.username, username=schema.username, email=schema.email
     )
     token = encode_jwt(payload=payload)
-
+    response.set_cookie(
+        key="access_token",
+        value=token.decode(),
+        httponly=True
+    )
     return JWTToken(access_token=token)
+
+
+@users_router.post("/logout/")
+async def users_logout(request: Request, response: Response) -> dict:
+    if request.cookies.get("access_token"):
+        response.delete_cookie("access_token") 
+        return {"status": 200}
+    raise HTTPException(status_code=401, detail="Unauthenticated.")
 
 
 @users_router.post("/register/")
