@@ -1,9 +1,9 @@
 from typing import List
+import typing
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.city.models import City
-from app.orders.models import Order
 from app.database import Model
 
 
@@ -16,4 +16,3 @@ class User(Model):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     balance: Mapped[float] = mapped_column(default=0.0)
     city: Mapped["City"] = mapped_column(ForeignKey("city.id"))
-    order: Mapped[List["Order"]] = relationship("User", secondary=Order, backref="user") 

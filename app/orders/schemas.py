@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class Order:
+class OrderSchema(BaseModel):
     id: int
     user_id: int
-    product_id: int
+    food_id: int

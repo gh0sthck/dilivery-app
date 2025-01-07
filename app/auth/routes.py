@@ -1,3 +1,4 @@
+from typing import List, Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response
 
 from app.auth.schemas import JWTPayload, JWTToken, RegisterUser, UserSchema
@@ -68,6 +69,11 @@ async def user_current_user(
     schema: UserSchema = Depends(get_current_user),
 ) -> UserSchema:
     return schema
+
+
+@users_router.get("/all/")
+async def user_all() -> Optional[List[UserSchema]]:
+    return await users_explorer.get()
 
 
 @users_router.get("/{id}/")
