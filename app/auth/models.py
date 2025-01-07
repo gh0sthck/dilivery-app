@@ -1,5 +1,5 @@
 from typing import List
-from pydantic import EmailStr
+import typing
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

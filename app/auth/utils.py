@@ -1,3 +1,5 @@
+import datetime
+from fastapi import HTTPException
 import jwt
 import bcrypt
 
@@ -21,8 +23,12 @@ def decode_jwt(
     jwt_token: bytes,
     public_key: str = config.auth.public_key_path.read_text(),
     algorithm: str = config.auth.algorithm
-):
-    return jwt.decode(jwt=jwt_token, key=public_key, algorithms=[algorithm])
+) -> dict:
+    try:
+        decoded: dict = jwt.decode(jwt=jwt_token, key=public_key, algorithms=[algorithm])
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Token not valid")
+    return decoded
 
 
 def hash_password(password: str):
