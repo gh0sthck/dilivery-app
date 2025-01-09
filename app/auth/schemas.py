@@ -1,6 +1,7 @@
 from datetime import timedelta
 from datetime import datetime
 import enum
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 
 from app.settings import config
@@ -16,7 +17,9 @@ class SUserView(BaseModel):
 
 
 class SUser(SUserView):
+    id: int
     password: str
+    order_create: Optional[bool] = False
 
 
 class SRegisterUser(BaseModel):
