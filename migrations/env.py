@@ -12,6 +12,7 @@ from app.settings import config as app_cfg
 from app.food.models import Food, Shop
 from app.city.models import City
 from app.auth.models import User
+from app.cart.models import Cart
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

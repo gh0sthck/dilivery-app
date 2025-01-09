@@ -10,6 +10,7 @@ class SUserView(BaseModel):
     username: str = Field(max_length=80)
     full_name: str = Field(max_length=256)
     email: EmailStr
+    balance: float = 0.0
     city: int
     role: int
 

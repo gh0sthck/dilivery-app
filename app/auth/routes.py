@@ -68,15 +68,23 @@ async def user_current_user(
     return schema
 
 
+def compare(cu: SUserView, u: SUserView) -> SUserView:
+    if cu.username == u.username: 
+        return u
+    else:
+        u.balance = None
+        return u 
+
+
 @users_router.get("/all/")
-async def user_all() -> Optional[List[SUserView]]:
+async def user_all(current_user: SUser = Depends(get_current_user)) -> Optional[List[SUserView]]:
     users: Optional[list[SUser]] = await users_explorer.get()
     if users:
-        return [SUserView.model_validate(us) for us in users]
+        return [compare(current_user, SUserView.model_validate(us)) for us in users]
 
 
 @users_router.get("/{id}/")
-async def user_by_id(id: int) -> Optional[SUserView]:
+async def user_by_id(id: int, current_user: SUser = Depends(get_current_user)) -> Optional[SUserView]:
     user: Optional[SUser] = await users_explorer.get(id=id)
     if user:
-        return SUserView.model_validate(user)
+        return compare(current_user, SUserView.model_validate(user))
