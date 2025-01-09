@@ -20,7 +20,7 @@ async def city_by_id(id: int) -> Optional[CitySchema]:
     return await city_explorer.get(id=id)
 
 
-@city_router.post("/new/")
+@city_router.post("/add/")
 async def city_add(
     schema: Annotated[CitySchema, Depends()],
 ) -> CitySchema:

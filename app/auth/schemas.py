@@ -6,22 +6,23 @@ from pydantic import BaseModel, EmailStr, Field
 from app.settings import config
 
 
-class Role(enum.Enum):
-    CLIENT: str = "client"
-    COURIER: str = "courier" 
-    ADMIN: str = "admin"
-
-
-class UserSchema(BaseModel):
+class SUserView(BaseModel):
     username: str = Field(max_length=80)
     full_name: str = Field(max_length=256)
     email: EmailStr
-    password: bytes
     city: int
-    role: Role = Role.CLIENT 
+    role: int
 
 
-class RegisterUser(UserSchema):
+class SUser(SUserView):
+    password: str
+
+
+class SRegisterUser(BaseModel):
+    username: str = Field(max_length=80)
+    full_name: str = Field(max_length=256)
+    email: EmailStr
+    city: int
     password: str
 
 
@@ -29,7 +30,9 @@ class JWTPayload(BaseModel):
     sub: str
     username: str
     email: EmailStr
-    expire: int = (datetime.now() + timedelta(minutes=config.auth.access_token_expire_minutes)).minute
+    expire: int = (
+        datetime.now() + timedelta(minutes=config.auth.access_token_expire_minutes)
+    ).minute
 
 
 class JWTToken(BaseModel):

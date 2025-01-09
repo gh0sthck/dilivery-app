@@ -15,4 +15,4 @@ class City(Model):
     __tablename__ = "city"
 
     name: Mapped[str] = mapped_column(String(length=80))
-    shops: Mapped[List["Shop"]] = relationship(back_populates="cities")
+    shops: Mapped[List["Shop"]] = relationship("Shop", back_populates="cities")

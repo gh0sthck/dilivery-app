@@ -55,7 +55,7 @@ async def shop_by_id(id: int) -> Optional[ShopSchema]:
     return await shop_explorer.get(id=id)
 
 
-@shop_router.post("/new/")
+@shop_router.post("/add/")
 async def shop_add(
     schema: Annotated[ShopSchema, Depends()],
 ) -> ShopSchema:
