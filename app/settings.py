@@ -45,17 +45,24 @@ class JWTAuth(BaseSettings):
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem" 
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 4
-    
+
+
+class LoggingSettings(BaseSettings):
+    fmt: str = "[{levelname}] {asctime} {filename}, {lineno} | {message}"
+    datefmt: str = "%H:%M:%S" 
+    style: str = "{" 
+
 
 class AppSettings(BaseSettings):
     """Main project settings."""
 
     debug: bool = True
     name: str = "Dilivery app"
-    version: str = "0.1.0"
+    version: str = "0.2.0"
     docs_url: str = "/docs/"
     
     database: DatabaseSettings = DatabaseSettings()
     auth: JWTAuth = JWTAuth() 
+    logs: LoggingSettings = LoggingSettings()
 
 config: AppSettings = AppSettings()
