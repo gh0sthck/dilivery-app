@@ -4,19 +4,26 @@ from fastapi import APIRouter, Depends
 
 from app.db_explorer import DbExplorer
 from app.food.models import Category, Food, Shop
-from app.food.schemas import CategorySchema, FoodSchema, ShopSchema
+from app.food.schemas import (
+    CategorySchema,
+    CategorySchemaRead,
+    FoodSchema,
+    FoodSchemaRead,
+    ShopSchema,
+    ShopSchemaRead,
+)
 
 food_router = APIRouter(prefix="/api/food", tags=["Food"])
 shop_router = APIRouter(prefix="/api/shop", tags=["Shop"])
 category_router = APIRouter(prefix="/api/category", tags=["Category"])
 
-food_explorer = DbExplorer(model=Food, schema=FoodSchema)
-shop_explorer = DbExplorer(model=Shop, schema=ShopSchema)
-category_explorer = DbExplorer(model=Category, schema=CategorySchema)
+food_explorer = DbExplorer(model=Food, schema=FoodSchemaRead)
+shop_explorer = DbExplorer(model=Shop, schema=ShopSchemaRead)
+category_explorer = DbExplorer(model=Category, schema=CategorySchemaRead)
 
 
 @food_router.get("/all/")
-async def food_all() -> Optional[List[FoodSchema]]:
+async def food_all() -> Optional[List[FoodSchemaRead]]:
     return await food_explorer.get()
 
 
@@ -28,7 +35,7 @@ async def food_by_id(id: int) -> Optional[FoodSchema]:
 @food_router.post("/add/")
 async def food_add(
     schema: Annotated[FoodSchema, Depends()],
-) -> FoodSchema:
+) -> FoodSchemaRead:
     return await food_explorer.post(schema=schema)
 
 
@@ -40,61 +47,61 @@ async def food_delete(id: int) -> Optional[FoodSchema]:
 @food_router.put("/update/{id}")
 async def food_update(
     id: int,
-    schema: Annotated[FoodSchema, Depends()],
+    schema: FoodSchema,
 ) -> Optional[FoodSchema]:
     return await food_explorer.update(id=id, schema=schema)
 
 
 @shop_router.get("/all/")
-async def shop_all() -> Optional[List[ShopSchema]]:
+async def shop_all() -> Optional[List[ShopSchemaRead]]:
     return await shop_explorer.get()
 
 
 @shop_router.get("/{id}/")
-async def shop_by_id(id: int) -> Optional[ShopSchema]:
+async def shop_by_id(id: int) -> Optional[ShopSchemaRead]:
     return await shop_explorer.get(id=id)
 
 
 @shop_router.post("/add/")
 async def shop_add(
-    schema: Annotated[ShopSchema, Depends()],
-) -> ShopSchema:
+    schema: ShopSchema,
+) -> ShopSchemaRead:
     return await shop_explorer.post(schema=schema)
 
 
 @shop_router.delete("/delete/{id}")
-async def shop_delete(id: int) -> Optional[ShopSchema]:
+async def shop_delete(id: int) -> Optional[ShopSchemaRead]:
     return await shop_explorer.delete(id=id)
 
 
 @shop_router.put("/update/{id}")
 async def shop_update(
     id: int,
-    schema: Annotated[ShopSchema, Depends()],
-) -> Optional[ShopSchema]:
+    schema: ShopSchema,
+) -> Optional[ShopSchemaRead]:
     return await shop_explorer.update(id=id, schema=schema)
 
 
 @category_router.get("/all/")
-async def category_all() -> Optional[List[CategorySchema]]:
+async def category_all() -> Optional[List[CategorySchemaRead]]:
     return await category_explorer.get()
 
 
 @category_router.get("/{id}/")
-async def caetgory_by_id(id: int) -> Optional[CategorySchema]:
+async def category_by_id(id: int) -> Optional[CategorySchemaRead]:
     return await category_explorer.get(id=id)
 
 
 @category_router.post("/add/")
-async def category_add(schema: Annotated[CategorySchema, Depends()]) -> CategorySchema:
+async def category_add(schema: CategorySchema) -> CategorySchemaRead:
     return await category_explorer.post(schema=schema)
 
 
 @category_router.delete("/delete/")
-async def category_delete(id: int) -> Optional[CategorySchema]:
+async def category_delete(id: int) -> Optional[CategorySchemaRead]:
     return await category_explorer.delete(id=id)
 
 
 @category_router.put("/update/{id}")
-async def category_update(id: int, schema: CategorySchema) -> Optional[CategorySchema]:
+async def category_update(id: int, schema: CategorySchema) -> Optional[CategorySchemaRead]:
     return await category_explorer.update(id=id, schema=schema)

@@ -1,6 +1,5 @@
 from datetime import timedelta
 from datetime import datetime
-import enum
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 

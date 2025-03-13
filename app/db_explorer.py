@@ -4,6 +4,7 @@ requests in each route function, you can use already implemented methods in DbEx
 You should have model (app.database) and model schema (pydantic.BaseModel) objects to use explorer.
 """
 
+import sched
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -44,11 +45,12 @@ class DbExplorer:
             if id is not None:
                 result = pre_result.scalar_one_or_none()
                 if result:
-                    return self.schema.model_validate(obj=result.__dict__)
+                    return self.schema.model_validate(obj=result, from_attributes=True)
                 return None
             return (
                 [
-                    self.schema.model_validate(obj=res.__dict__)
+                    # self.schema.model_validate(obj=res.__dict__)
+                    self.schema.model_validate(res, from_attributes=True)
                     for res in pre_result.scalars().all()
                 ]
                 if pre_result
@@ -60,27 +62,32 @@ class DbExplorer:
         session: AsyncSession
         async with async_session() as session:
             query = Insert(self.model).values(schema.model_dump())
-            await session.execute(query)
+            q = await session.execute(query)
+            pk = q.inserted_primary_key[0]
+            s = schema.model_dump()
+            s["id"] = pk
             await session.commit()
-        return schema
+        return self.schema.model_validate(s)
 
     async def delete(self, id: int) -> Optional[BaseModel]:
         """Return object schema, which be delete from database."""
         session: AsyncSession
         async with async_session() as session:
-            obj: Optional[self.model] = await self.get(session=session, id=id)
+            obj: Optional[Model] = await self.get(id=id)
             if obj:
                 query = Delete(self.model).where(self.model.id == id)
                 await session.execute(query)
+                s = self.schema.model_validate(obj, from_attributes=True)
+                s.id = id
                 await session.commit()
-                return self.schema.model_validate(obj.__dict__)
+                return self.schema.model_validate(s)
             return None
 
     async def update(self, id: int, schema: BaseModel) -> Optional[BaseModel]:
         """Return updated object schema, with be edited in database."""
         session: AsyncSession
         async with async_session() as session:
-            obj: Optional[self.model] = await self.get(session=session, id=id)
+            obj: Optional[Model] = await self.get(id=id)
             if obj:
                 query = (
                     Update(self.model)
@@ -89,5 +96,7 @@ class DbExplorer:
                 )
                 await session.execute(query)
                 await session.commit()
-                return schema
+                s = schema.model_dump()
+                s["id"] = id 
+                return self.schema.model_validate(s)
         return None
