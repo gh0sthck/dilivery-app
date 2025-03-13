@@ -53,11 +53,8 @@ async def users_logout(request: Request, response: Response) -> dict:
 
 
 @users_router.post("/register/")
-async def user_register(schema: SRegisterUser = Depends()) -> SUser:
-    temp = schema.model_dump()
-    temp["role"] = 0
-    temp["password"] = hash_password(temp["password"]).decode() 
-    schema = SUser.model_validate(temp)
+async def user_register(schema: SRegisterUser) -> SUser:
+    schema.password = hash_password(schema.password).decode()
     return await users_explorer.post(schema=schema)
 
 
@@ -69,22 +66,26 @@ async def user_current_user(
 
 
 def compare(cu: SUserView, u: SUserView) -> SUserView:
-    if cu.username == u.username: 
+    if cu.username == u.username:
         return u
     else:
         u.balance = None
-        return u 
+        return u
 
 
 @users_router.get("/all/")
-async def user_all(current_user: SUser = Depends(get_current_user)) -> Optional[List[SUserView]]:
+async def user_all(
+    current_user: SUser = Depends(get_current_user),
+) -> Optional[List[SUserView]]:
     users: Optional[list[SUser]] = await users_explorer.get()
     if users:
         return [compare(current_user, SUserView.model_validate(us)) for us in users]
 
 
 @users_router.get("/{id}/")
-async def user_by_id(id: int, current_user: SUser = Depends(get_current_user)) -> Optional[SUserView]:
+async def user_by_id(
+    id: int, current_user: SUser = Depends(get_current_user)
+) -> Optional[SUserView]:
     user: Optional[SUser] = await users_explorer.get(id=id)
     if user:
         return compare(current_user, SUserView.model_validate(user))

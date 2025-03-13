@@ -7,6 +7,7 @@ from app.settings import config
 
 
 class SUserView(BaseModel):
+    id: int
     username: str = Field(max_length=80)
     full_name: str = Field(max_length=256)
     email: EmailStr
@@ -16,7 +17,6 @@ class SUserView(BaseModel):
 
 
 class SUser(SUserView):
-    id: int
     password: str
     order_create: Optional[bool] = False
 
