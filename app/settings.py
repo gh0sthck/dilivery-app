@@ -62,7 +62,7 @@ class TestsSettings(BaseSettings):
     pg_data: PostgresData = PostgresData()
     test_db_name: str = pg_data.NAME + "test"
     test_pg_url: PostgresDsn = (
-        f"postgres+asyncpg://{pg_data.USER}:{pg_data.PASSWD}@{pg_data.HOST}:{pg_data.PORT}/{test_db_name}"
+        f"postgresql+asyncpg://{pg_data.USER}:{pg_data.PASSWD}@{pg_data.HOST}:{pg_data.PORT}/{test_db_name}"
     )
 
     @property
