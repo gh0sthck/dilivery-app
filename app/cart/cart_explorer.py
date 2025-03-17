@@ -4,15 +4,15 @@ from pydantic import BaseModel
 from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.orders.schemas import SOrder
-from app.orders.models import Order
+from app.cart.schemas import SCart
+from .models import Cart
 from app.db_explorer import DbExplorer
 from app.database import async_session
 
 
-class OrderExplorer(DbExplorer):
+class CartExplorer(DbExplorer):
     def __init__(self):
-        super().__init__(Order, SOrder)
+        super().__init__(Cart, SCart)
 
     async def get(
         self, id: Optional[int] = None
@@ -29,12 +29,12 @@ class OrderExplorer(DbExplorer):
                 result = pre_result.fetchone()
                 if result:
                     return self.schema(
-                        user_id=result[1], courier_id=result[2], status=result[3]
+                        id=result[0], user_id=result[1], food_id=result[2]
                     )
                 return None
             return (
                 [
-                    self.schema(user_id=res[1], courier_id=res[2], status=res[3])
+                    self.schema(id=res[0], user_id=res[1], food_id=res[2])
                     for res in pre_result.all()
                 ]
                 if pre_result

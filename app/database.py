@@ -10,7 +10,10 @@ async_session: AsyncSession = async_sessionmaker(bind=engine, expire_on_commit=F
 
 
 class Model(DeclarativeBase):
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+
+    def __repr__(self):
+        return f"<Model: {self.id}>"
 
 
 async def get_async_session():
