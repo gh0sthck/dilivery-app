@@ -15,6 +15,7 @@ BASE_DIR = Path(__file__).parent
 
 class PostgresData(BaseSettings):
     """PostgreSQL data to connection. Recevies date from env file."""
+
     NAME: str
     USER: str
     PASSWD: str
@@ -25,8 +26,8 @@ class PostgresData(BaseSettings):
 
 
 class DatabaseSettings(BaseSettings):
-    "Database connection settings."
-    
+    """Database connection settings."""
+
     pg_data: PostgresData = PostgresData()
     postgres: PostgresDsn = (
         f"postgresql+asyncpg://{pg_data.USER}:{pg_data.PASSWD}"
@@ -40,17 +41,33 @@ class DatabaseSettings(BaseSettings):
 
 class JWTAuth(BaseSettings):
     """JWT authentication settings."""
-    
+
     private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
-    public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem" 
+    public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 4
 
 
 class LoggingSettings(BaseSettings):
+    """Logging settings."""
+
     fmt: str = "[{levelname}] {asctime} {filename}, {lineno} | {message}"
-    datefmt: str = "%H:%M:%S" 
-    style: str = "{" 
+    datefmt: str = "%H:%M:%S"
+    style: str = "{"
+
+
+class TestsSettings(BaseSettings):
+    """Settings for testing."""
+
+    pg_data: PostgresData = PostgresData()
+    test_db_name: str = pg_data.NAME + "test"
+    test_pg_url: PostgresDsn = (
+        f"postgres+asyncpg://{pg_data.USER}:{pg_data.PASSWD}@{pg_data.HOST}:{pg_data.PORT}/{test_db_name}"
+    )
+
+    @property
+    def db_dsn(self):
+        return self.test_pg_url.unicode_string()
 
 
 class AppSettings(BaseSettings):
@@ -60,9 +77,11 @@ class AppSettings(BaseSettings):
     name: str = "Dilivery app"
     version: str = "0.2.0"
     docs_url: str = "/docs/"
-    
+
     database: DatabaseSettings = DatabaseSettings()
-    auth: JWTAuth = JWTAuth() 
+    auth: JWTAuth = JWTAuth()
     logs: LoggingSettings = LoggingSettings()
+    tests: TestsSettings = TestsSettings()
+
 
 config: AppSettings = AppSettings()

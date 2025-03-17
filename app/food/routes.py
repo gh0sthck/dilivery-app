@@ -1,4 +1,5 @@
 from typing import Annotated, List, Optional
+from unicodedata import category
 
 from fastapi import APIRouter, Depends
 
@@ -22,8 +23,11 @@ food_explorer = DbExplorer(model=Food, schema=FoodSchemaRead)
 shop_explorer = DbExplorer(model=Shop, schema=ShopSchemaRead)
 category_explorer = DbExplorer(model=Category, schema=CategorySchemaRead)
 
-LOGGER = AppLogger("name")
+
+LOGGER = AppLogger("food")
 food_logger = LOGGER.get_logger()
+shop_logger = LOGGER.get_logger()
+category_logger = LOGGER.get_logger()
 
 
 @food_router.get("/all/")
@@ -63,11 +67,13 @@ async def food_update(
 
 @shop_router.get("/all/")
 async def shop_all() -> Optional[List[ShopSchemaRead]]:
+    shop_logger.info("Shop all endpoint")
     return await shop_explorer.get()
 
 
 @shop_router.get("/{id}/")
 async def shop_by_id(id: int) -> Optional[ShopSchemaRead]:
+    shop_logger.info("Shop by id endpoint") 
     return await shop_explorer.get(id=id)
 
 
@@ -75,11 +81,13 @@ async def shop_by_id(id: int) -> Optional[ShopSchemaRead]:
 async def shop_add(
     schema: ShopSchema,
 ) -> ShopSchemaRead:
+    shop_logger.info("Shop add endpoint")
     return await shop_explorer.post(schema=schema)
 
 
 @shop_router.delete("/delete/{id}")
 async def shop_delete(id: int) -> Optional[ShopSchemaRead]:
+    shop_logger.info("Shop delete endpoint") 
     return await shop_explorer.delete(id=id)
 
 
@@ -88,26 +96,31 @@ async def shop_update(
     id: int,
     schema: ShopSchema,
 ) -> Optional[ShopSchemaRead]:
+    shop_logger.info("Shop update endpoint") 
     return await shop_explorer.update(id=id, schema=schema)
 
 
 @category_router.get("/all/")
 async def category_all() -> Optional[List[CategorySchemaRead]]:
+    category_logger.info("Category all endpoint") 
     return await category_explorer.get()
 
 
 @category_router.get("/{id}/")
 async def category_by_id(id: int) -> Optional[CategorySchemaRead]:
+    category_logger.info("Category by id endpoint") 
     return await category_explorer.get(id=id)
 
 
 @category_router.post("/add/")
 async def category_add(schema: CategorySchema) -> CategorySchemaRead:
+    category_logger.info("Category add endpoint") 
     return await category_explorer.post(schema=schema)
 
 
 @category_router.delete("/delete/")
 async def category_delete(id: int) -> Optional[CategorySchemaRead]:
+    category_logger.info("Categroy delete endpoint") 
     return await category_explorer.delete(id=id)
 
 
@@ -115,4 +128,5 @@ async def category_delete(id: int) -> Optional[CategorySchemaRead]:
 async def category_update(
     id: int, schema: CategorySchema
 ) -> Optional[CategorySchemaRead]:
+    category_logger.info("Category update endpoint") 
     return await category_explorer.update(id=id, schema=schema)
