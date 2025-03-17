@@ -5,6 +5,7 @@ You should have model (app.database) and model schema (pydantic.BaseModel) objec
 """
 
 from functools import wraps
+from logging import Logger
 from typing import Callable, List, Optional
 
 from pydantic import BaseModel
@@ -26,10 +27,11 @@ class DbExplorer:
     """
     LOGGER = AppLogger(__name__)
 
-    def __init__(self, model: Model, schema: BaseModel) -> None:
+    def __init__(self, model: Model, schema: BaseModel, session: AsyncSession = async_session()) -> None:
         self.model: Model = model
         self.schema: BaseModel = schema
-        self.logger = self.LOGGER.get_logger()
+        self.logger: Logger = self.LOGGER.get_logger()
+        self.session: AsyncSession = session
 
     def __log(func: Callable):
         wraps(func)
@@ -49,11 +51,11 @@ class DbExplorer:
         """
         Return all objects schemas from database; one if id is specified; None if object not found.
         """
-        session: AsyncSession
-        async with async_session() as session:
+        # session: AsyncSession
+        async with self.session as session:
             query = (
                 Select(self.model).where(self.model.id == id)
-                if id
+                if id is not None
                 else Select(self.model)
             )
             pre_result = await session.execute(query)
@@ -63,6 +65,8 @@ class DbExplorer:
                 if result:
                     return self.schema.model_validate(obj=result, from_attributes=True)
                 return None
+            
+            self.logger.info(f"Multiple result")
             return (
                 [
                     self.schema.model_validate(res, from_attributes=True)
@@ -75,8 +79,7 @@ class DbExplorer:
     @__log
     async def post(self, schema: BaseModel) -> BaseModel:
         """Return object schema, which be added to database."""
-        session: AsyncSession
-        async with async_session() as session:
+        async with self.session as session:
             query = Insert(self.model).values(schema.model_dump())
             q = await session.execute(query)
             pk = q.inserted_primary_key[0]
@@ -86,10 +89,10 @@ class DbExplorer:
             await session.commit()
         return self.schema.model_validate(s)
 
+    @__log
     async def delete(self, id: int) -> Optional[BaseModel]:
         """Return object schema, which be delete from database."""
-        session: AsyncSession
-        async with async_session() as session:
+        async with self.session as session:
             obj: Optional[Model] = await self.get(id=id)
             if obj:
                 query = Delete(self.model).where(self.model.id == id)
@@ -101,10 +104,10 @@ class DbExplorer:
                 return self.schema.model_validate(s)
             return None
 
+    @__log
     async def update(self, id: int, schema: BaseModel) -> Optional[BaseModel]:
         """Return updated object schema, with be edited in database."""
-        session: AsyncSession
-        async with async_session() as session:
+        async with self.session as session:
             obj: Optional[Model] = await self.get(id=id)
             if obj:
                 query = (

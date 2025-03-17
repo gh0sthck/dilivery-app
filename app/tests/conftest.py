@@ -12,12 +12,19 @@ from app.city.models import City
 from app.food.models import Category, Food, Shop
 from app.settings import config
 from app.database import Model
-from fixtures import get_city_list, get_category_list, get_shop_list, get_food_list
+from app.tests.models import ModelTest, ModelTestS
+from fixtures import (
+    get_city_list,
+    get_category_list,
+    get_shop_list,
+    get_food_list,
+    get_tests_list,
+)
 
 
 test_engine = create_async_engine(url=config.tests.db_dsn)
-test_async_session = async_sessionmaker(bind=test_engine, expire_on_commit=True)
 Model.metadata.bind = test_engine
+test_async_session = async_sessionmaker(bind=test_engine, expire_on_commit=False)
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +32,7 @@ def event_loop():
     return asyncio.new_event_loop()
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest_asyncio.fixture(autouse=True, scope="session")
 async def prepare_db():
     async with test_engine.begin() as connect:
         await connect.run_sync(Model.metadata.create_all)
@@ -43,8 +50,15 @@ async def delete_tables(table: Model):
 async def create_tables(table: Model, values: Iterable):
     await delete_tables(table)
     async with test_async_session() as session:
-        await session.exeucte(Insert(table).values(values))
+        await session.execute(Insert(table).values(values))
         await session.commit()
+
+
+@pytest.fixture
+async def prepare_test_model(get_tests_list):
+    await create_tables(ModelTest, get_tests_list)
+    yield
+    await delete_tables(ModelTest)
 
 
 @pytest_asyncio.fixture
