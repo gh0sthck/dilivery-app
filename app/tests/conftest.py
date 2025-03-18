@@ -2,23 +2,25 @@ import asyncio
 from typing import Iterable
 
 import pytest
-
 import pytest_asyncio
 from sqlalchemy import Delete, Insert
 from sqlalchemy.ext.asyncio.engine import create_async_engine
 from sqlalchemy.ext.asyncio.session import async_sessionmaker
 
+from app.auth.models import Role, User
 from app.city.models import City
 from app.food.models import Category, Food, Shop
 from app.settings import config
 from app.database import Model
-from app.tests.models import ModelTest, ModelTestS
+from app.tests.models import ModelTest
 from fixtures import (
     get_city_list,
     get_category_list,
+    get_role_list,
     get_shop_list,
     get_food_list,
     get_tests_list,
+    get_user_list,
 )
 
 
@@ -87,3 +89,17 @@ async def prepare_food(prepare_category, prepare_shop, get_food_list):
     await create_tables(Food, get_food_list)
     yield
     await delete_tables(Food)
+
+
+@pytest_asyncio.fixture
+async def prepare_roles(get_role_list):
+    await create_tables(Role, get_role_list)
+    yield
+    await delete_tables(Role)
+
+
+@pytest_asyncio.fixture
+async def prepare_users(prepare_city, prepare_roles, get_user_list):
+    await create_tables(User, get_user_list)
+    yield
+    await delete_tables(User)

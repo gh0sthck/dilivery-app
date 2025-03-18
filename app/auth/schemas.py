@@ -6,6 +6,14 @@ from pydantic import BaseModel, EmailStr, Field
 from app.settings import config
 
 
+class SRole(BaseModel):
+    name: str
+
+
+class SRoleView(SRole):
+    id: int
+
+
 class SUserView(BaseModel):
     id: int
     username: str = Field(max_length=80)

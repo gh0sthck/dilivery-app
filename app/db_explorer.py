@@ -24,6 +24,7 @@ class DbExplorer:
     :self.model: SQLAlchemy model - requires to model have `id` field. Inheritance all models from
     `Model` (app.database).
     :self.schema: Pydantic schema
+    :self.session: SQLAlchemy AsyncSession, not required
     """
     LOGGER = AppLogger(__name__)
 
