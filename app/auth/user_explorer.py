@@ -10,12 +10,14 @@ from app.db_explorer import DbExplorer
 
 
 class UserExplorer(DbExplorer):
-    def __init__(self, session: AsyncSession = async_session()) -> None:
-        super().__init__(model=User, schema=SUser, session=session)
+    def __init__(self) -> None:
+        super().__init__(model=User, schema=SUser)
 
-    @DbExplorer.__log
-    async def get_by_username(self, username: str) -> Optional[SUser]:
-        async with self.session as session:
+    @DbExplorer._log
+    async def get_by_username(
+        self, username: str, _session: AsyncSession = async_session()
+    ) -> Optional[SUser]:
+        async with _session as session:
             query = Select(self.model).where(User.username == username)
             result = await session.execute(query)
             user = result.scalar_one_or_none()
@@ -24,10 +26,15 @@ class UserExplorer(DbExplorer):
                 return SUser.model_validate(obj=user, from_attributes=True)
             return None
 
-    @DbExplorer.__log
-    async def post(self, schema: SRegisterUser, role_id: int = 0) -> SUser:
+    @DbExplorer._log
+    async def post(
+        self,
+        schema: SRegisterUser,
+        role_id: int = 0,
+        _session: AsyncSession = async_session(),
+    ) -> SUser:
         """Return object schema, which will added to database."""
-        async with self.session as session:
+        async with _session as session:
             s = schema.model_dump()
             s["role"] = role_id
             query = Insert(self.model).values(s)

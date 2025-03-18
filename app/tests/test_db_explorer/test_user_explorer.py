@@ -2,16 +2,15 @@ import pytest
 
 from app.auth.schemas import SRegisterUser, SUser
 from app.auth.user_explorer import UserExplorer
-from app.tests.conftest import test_async_session
+from app.tests.models import test_async_session
 
-
-explorer = UserExplorer(session=test_async_session())
+explorer = UserExplorer()
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("username", [f"test-user-{cnt}" for cnt in range(10, 20)])
 async def test_by_username_users(username, prepare_users):
-    result = await explorer.get_by_username(username=username)
+    result = await explorer.get_by_username(username=username, _session=test_async_session())
     assert isinstance(result, SUser)
     assert result.username == username
 
@@ -26,5 +25,5 @@ async def test_post_users(id_, prepare_users):
         password=f"testpass-{id_}",
         city=id_+10,
     )
-    result = await explorer.post(payload, 10)
+    result = await explorer.post(payload, 10, _session=test_async_session())
     assert isinstance(result, SUser)

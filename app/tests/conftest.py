@@ -4,15 +4,12 @@ from typing import Iterable
 import pytest
 import pytest_asyncio
 from sqlalchemy import Delete, Insert
-from sqlalchemy.ext.asyncio.engine import create_async_engine
-from sqlalchemy.ext.asyncio.session import async_sessionmaker
 
 from app.auth.models import Role, User
 from app.city.models import City
 from app.food.models import Category, Food, Shop
-from app.settings import config
 from app.database import Model
-from app.tests.models import ModelTest
+from app.tests.models import ModelTest, test_async_session, test_engine
 from fixtures import (
     get_city_list,
     get_category_list,
@@ -22,11 +19,6 @@ from fixtures import (
     get_tests_list,
     get_user_list,
 )
-
-
-test_engine = create_async_engine(url=config.tests.db_dsn)
-Model.metadata.bind = test_engine
-test_async_session = async_sessionmaker(bind=test_engine, expire_on_commit=False)
 
 
 @pytest.fixture(scope="session")
@@ -78,7 +70,7 @@ async def prepare_category(get_category_list):
 
 
 @pytest_asyncio.fixture
-async def prepare_shop(get_shop_list):
+async def prepare_shop(prepare_city, get_shop_list):
     await create_tables(Shop, get_shop_list)
     yield
     await delete_tables(Shop)
