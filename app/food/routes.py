@@ -58,15 +58,15 @@ async def food_add(
 @food_router.delete("/delete/{id}/")
 async def food_delete(
     id: int, session: AsyncSession = Depends(get_async_session)
-) -> Optional[FoodSchema]:
+) -> Optional[FoodSchemaRead]:
     food_logger.info("Food Delete endpoint")
     return await food_explorer.delete(id=id, _session=session)
 
 
-@food_router.put("/update/{id}")
+@food_router.put("/update/{id}/")
 async def food_update(
     id: int, schema: FoodSchema, session: AsyncSession = Depends(get_async_session)
-) -> Optional[FoodSchema]:
+) -> Optional[FoodSchemaRead]:
     food_logger.info("Food Update endpoint")
     return await food_explorer.update(id=id, schema=schema, _session=session)
 
