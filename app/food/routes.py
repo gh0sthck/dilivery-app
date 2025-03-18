@@ -95,7 +95,7 @@ async def shop_add(
     return await shop_explorer.post(schema=schema, _session=session)
 
 
-@shop_router.delete("/delete/{id}")
+@shop_router.delete("/delete/{id}/")
 async def shop_delete(
     id: int, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[ShopSchemaRead]:
@@ -103,7 +103,7 @@ async def shop_delete(
     return await shop_explorer.delete(id=id, _session=session)
 
 
-@shop_router.put("/update/{id}")
+@shop_router.put("/update/{id}/")
 async def shop_update(
     id: int, schema: ShopSchema, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[ShopSchemaRead]:
@@ -135,7 +135,7 @@ async def category_add(
     return await category_explorer.post(schema=schema, _session=session)
 
 
-@category_router.delete("/delete/")
+@category_router.delete("/delete/{id}/")
 async def category_delete(
     id: int, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[CategorySchemaRead]:
@@ -143,7 +143,7 @@ async def category_delete(
     return await category_explorer.delete(id=id, _session=session)
 
 
-@category_router.put("/update/{id}")
+@category_router.put("/update/{id}/")
 async def category_update(
     id: int, schema: CategorySchema, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[CategorySchemaRead]:

@@ -1,6 +1,7 @@
 import asyncio
 from typing import Iterable
 
+import httpx
 import pytest
 import pytest_asyncio
 from sqlalchemy import Delete, Insert
@@ -8,8 +9,8 @@ from sqlalchemy import Delete, Insert
 from app.auth.models import Role, User
 from app.city.models import City
 from app.food.models import Category, Food, Shop
-from app.database import Model
-from app.tests.models import ModelTest, test_async_session, test_engine
+from app.database import Model, get_async_session
+from app.tests.models import ModelTest, get_test_session, test_async_session, test_engine
 from fixtures import (
     get_city_list,
     get_category_list,
@@ -19,6 +20,7 @@ from fixtures import (
     get_tests_list,
     get_user_list,
 )
+from main import app
 
 
 @pytest.fixture(scope="session")
@@ -33,6 +35,16 @@ async def prepare_db():
     yield
     async with test_engine.begin() as connect:
         await connect.run_sync(Model.metadata.drop_all)
+
+
+@pytest_asyncio.fixture
+async def get_client():
+    app.dependency_overrides[get_async_session] = get_test_session
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://localhost:8000/api/"
+    ) as cli:
+        yield cli
+
 
 
 async def delete_tables(table: Model):
