@@ -35,7 +35,7 @@ async def city_by_id(
 @city_router.post("/add/")
 async def city_add(
     schema: CitySchema, session: AsyncSession = Depends(get_async_session)
-) -> CitySchema:
+) -> CitySchemaRead:
     city_logger.info("City add endpoint")
     return await city_explorer.post(schema=schema, _session=session)
 
@@ -48,7 +48,7 @@ async def city_update(
     return await city_explorer.update(id=id, schema=schema, _session=session)
 
 
-@city_router.delete("/delete/{id}")
+@city_router.delete("/delete/{id}/")
 async def city_delete(
     id: int, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[CitySchemaRead]:
